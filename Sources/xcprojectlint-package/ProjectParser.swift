@@ -549,7 +549,7 @@ func identifyUnparsedKeys(_ values: Dictionary<String, Any>, knownKeys: [String]
   for (key, _) in values {
     guard key != "isa" else { continue }
     if !knownKeys.contains(key) {
-      print("\(key)")
+      ErrorReporter.debugWarn("\(key)")
     }
   }
 }
@@ -675,7 +675,7 @@ init(project: Dictionary<String, Any>, projectText: String, projectPath: String)
         case "PBXHeadersBuildPhase":
           break
         default:
-          print("New type found: \(node)")
+          ErrorReporter.debugWarn("New type found: \(node)")
         }
       }
       parsed = true
