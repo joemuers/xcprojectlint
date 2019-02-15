@@ -35,5 +35,14 @@ public struct ErrorReporter {
       handle.write(data)
     }
   }
+
+    static func debugWarn(_ errorString: String) {
+        #if DEBUG
+        let handle = FileHandle.standardError
+        if let data = errorString.data(using: .utf8) {
+            handle.write(data)
+        }
+        #endif
+    }
 }
 

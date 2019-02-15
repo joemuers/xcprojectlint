@@ -33,7 +33,7 @@ extension Dictionary where Key == String {
       return value
     }
     
-    ErrorReporter.report("We didn’t find an expected key (\(key)) in “\(container)”. Please open a bug report at https://github.com/americanexpress/xcprojectlint/issues so we can investigate.\n")
+    ErrorReporter.debugWarn("We didn’t find an expected key (\(key)) in “\(container)”. Please open a bug report at https://github.com/americanexpress/xcprojectlint/issues so we can investigate.\n")
     
     return "Unavailable"
   }
