@@ -39,7 +39,8 @@ public struct ErrorReporter {
     static func debugWarn(_ errorString: String) {
         #if DEBUG
         let handle = FileHandle.standardError
-        if let data = errorString.data(using: .utf8) {
+        let errorAndNewLine = errorString + "\n"
+        if let data = errorAndNewLine.data(using: .utf8) {
             handle.write(data)
         }
         #endif
