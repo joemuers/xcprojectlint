@@ -355,13 +355,13 @@ struct SourcesBuildPhase: CustomDebugStringConvertible {
 }
 
 struct TargetDependency: CustomDebugStringConvertible {
-  let target: String
+  let target: String?
   let targetProxy: String
   var debugDescription: String
   
   init(value: Dictionary<String, Any>) {
-    identifyUnparsedKeys(value, knownKeys: ["target", "targetProxy"])
-    self.target = value.string(forKey: "target", container: "\(type(of: self))")
+    identifyUnparsedKeys(value, knownKeys: ["targetProxy"])
+    self.target = value["target"] as? String
     self.targetProxy = value.string(forKey: "targetProxy", container: "\(type(of: self))")
     
     self.debugDescription = "undefined"
