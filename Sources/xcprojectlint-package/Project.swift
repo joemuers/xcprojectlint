@@ -48,7 +48,7 @@ public struct Project {
     guard let plist = serialization else { throw ProjectParseError.failedToSerializeProjectData }
     guard let dict = plist as? [String : Any] else { throw ProjectParseError.failedToContortDictionary }
     
-    let parser = ProjectParser(project: dict, projectText: projectText, projectPath: projectPath)
+    let parser = ProjectParser(project: dict, projectText: projectText, projectPath: projectPath, errorReporter: errorReporter)
     guard parser.parse() else { throw ProjectParseError.failedToParseProjectStructure }
     
     self.projectName = projectURL.lastPathComponent

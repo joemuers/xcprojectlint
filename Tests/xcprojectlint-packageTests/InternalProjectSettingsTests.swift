@@ -20,7 +20,7 @@ class InternalProjectSettingsTests: XCTestCase {
   func testInternalProjectSettingsReturnsError() {
     do {
       let testData = Bundle.test.testData
-      let errorReporter = ErrorReporter(pbxprojPath: testData, reportKind: .error)
+      let errorReporter = ErrorReporter(pbxprojPath: testData, reportKind: .error, isQuiet: false)
       let project = try Project(testData, errorReporter: errorReporter)
       
       XCTAssertEqual(checkForInternalProjectSettings(project, errorReporter: errorReporter), EX_SOFTWARE)

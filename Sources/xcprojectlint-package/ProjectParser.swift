@@ -28,12 +28,12 @@ protocol TitledNode: CustomDebugStringConvertible {
 /// here’s a helper that A: doesn’t crash; b: asks for a bug report.
 
 extension Dictionary where Key == String {
-  func string(forKey key: String, container: String) -> String {
+  func string(forKey key: String, container: String, errorReporter: ErrorReporter) -> String {
     if let value = self[key] as? String {
       return value
     }
     
-    ErrorReporter.debugWarn("We didn’t find an expected key (\(key)) in “\(container)”. Please open a bug report at https://github.com/americanexpress/xcprojectlint/issues so we can investigate.\n")
+    errorReporter.debugWarn("We didn’t find an expected key (\(key)) in “\(container)”. Please open a bug report at https://github.com/americanexpress/xcprojectlint/issues so we can investigate.\n")
     
     return "Unavailable"
   }
@@ -48,8 +48,8 @@ struct BuildConfiguration: TitledNode {
   let buildSettings: Dictionary<String, Any>
   var debugDescription: String
   
-  init(key: String, value: Dictionary<String, Any>, title: String) {
-    identifyUnparsedKeys(value, knownKeys: ["name", "baseConfigurationReference", "buildSettings"])
+  init(key: String, value: Dictionary<String, Any>, title: String, errorReporter: ErrorReporter) {
+    identifyUnparsedKeys(value, knownKeys: ["name", "baseConfigurationReference", "buildSettings"], errorReporter: errorReporter)
     self.id = key
     self.title = title
     self.name = value["name"] as? String ?? "Untitled"
@@ -68,13 +68,13 @@ struct BuildConfigurationList: TitledNode {
   let defaultConfigurationIsVisible: Bool
   var debugDescription: String
   
-  init(key: String, value: Dictionary<String, Any>, title: String) {
-    identifyUnparsedKeys(value, knownKeys: ["buildConfigurations", "defaultConfigurationName", "defaultConfigurationIsVisible"])
+  init(key: String, value: Dictionary<String, Any>, title: String, errorReporter: ErrorReporter) {
+    identifyUnparsedKeys(value, knownKeys: ["buildConfigurations", "defaultConfigurationName", "defaultConfigurationIsVisible"], errorReporter: errorReporter)
     self.id = key
     self.title = title
     self.buildConfigurations = value["buildConfigurations"] as! [String]
     self.defaultConfigurationName = value["defaultConfigurationName"] as? String
-    self.defaultConfigurationIsVisible = (value.string(forKey: "defaultConfigurationIsVisible", container: "\(type(of: self))")) == "1"
+    self.defaultConfigurationIsVisible = (value.string(forKey: "defaultConfigurationIsVisible", container: "\(type(of: self))", errorReporter: errorReporter)) == "1"
     
     self.debugDescription = buildConfigurations.debugDescription
   }
@@ -86,10 +86,10 @@ struct BuildFile: CustomDebugStringConvertible {
   
   var debugDescription: String
   
-  init(key: String, value: Dictionary<String, Any>) {
-    identifyUnparsedKeys(value, knownKeys: ["fileRef", "settings"])
+  init(key: String, value: Dictionary<String, Any>, errorReporter: ErrorReporter) {
+    identifyUnparsedKeys(value, knownKeys: ["fileRef", "settings"], errorReporter: errorReporter)
     self.key = key
-    self.fileRef = value.string(forKey: "fileRef", container: "\(type(of: self))")
+    self.fileRef = value.string(forKey: "fileRef", container: "\(type(of: self))", errorReporter: errorReporter)
     
     self.debugDescription = "\(fileRef) (\(key))"
   }
@@ -102,12 +102,12 @@ struct ContainerItemProxy: CustomDebugStringConvertible {
   let remoteGlobalIDString: String
   var debugDescription: String
   
-  init(value: Dictionary<String, Any>) {
-    identifyUnparsedKeys(value, knownKeys: ["remoteInfo", "proxyType", "containerPortal", "remoteGlobalIDString"])
-    self.remoteInfo = value.string(forKey: "remoteInfo", container: "\(type(of: self))")
-    self.proxyType = value.string(forKey: "proxyType", container: "\(type(of: self))")
-    self.containerPortal = value.string(forKey: "containerPortal", container: "\(type(of: self))")
-    self.remoteGlobalIDString = value.string(forKey: "remoteGlobalIDString", container: "\(type(of: self))")
+  init(value: Dictionary<String, Any>, errorReporter: ErrorReporter) {
+    identifyUnparsedKeys(value, knownKeys: ["remoteInfo", "proxyType", "containerPortal", "remoteGlobalIDString"], errorReporter: errorReporter)
+    self.remoteInfo = value.string(forKey: "remoteInfo", container: "\(type(of: self))", errorReporter: errorReporter)
+    self.proxyType = value.string(forKey: "proxyType", container: "\(type(of: self))", errorReporter: errorReporter)
+    self.containerPortal = value.string(forKey: "containerPortal", container: "\(type(of: self))", errorReporter: errorReporter)
+    self.remoteGlobalIDString = value.string(forKey: "remoteGlobalIDString", container: "\(type(of: self))", errorReporter: errorReporter)
     
     self.debugDescription = "undefined"
   }
@@ -122,14 +122,14 @@ struct CopyFilesBuildPhase: CustomDebugStringConvertible {
   let buildActionMask: String
   var debugDescription: String
   
-  init(value: Dictionary<String, Any>) {
-    identifyUnparsedKeys(value, knownKeys: ["dstSubfolderSpec", "files", "name", "dstPath", "runOnlyForDeploymentPostprocessing", "buildActionMask"])
-    self.dstSubfolderSpec = value.string(forKey: "dstSubfolderSpec", container: "\(type(of: self))")
+  init(value: Dictionary<String, Any>, errorReporter: ErrorReporter) {
+    identifyUnparsedKeys(value, knownKeys: ["dstSubfolderSpec", "files", "name", "dstPath", "runOnlyForDeploymentPostprocessing", "buildActionMask"], errorReporter: errorReporter)
+    self.dstSubfolderSpec = value.string(forKey: "dstSubfolderSpec", container: "\(type(of: self))", errorReporter: errorReporter)
     self.files = value["files"] as! [String]
     self.name = value["name"] as? String ?? "Untitled"
-    self.dstPath = value.string(forKey: "dstPath", container: "\(type(of: self))")
-    self.runOnlyForDeploymentPostprocessing = (value.string(forKey: "runOnlyForDeploymentPostprocessing", container: "\(type(of: self))")) == "1"
-    self.buildActionMask = value.string(forKey: "buildActionMask", container: "\(type(of: self))")
+    self.dstPath = value.string(forKey: "dstPath", container: "\(type(of: self))", errorReporter: errorReporter)
+    self.runOnlyForDeploymentPostprocessing = (value.string(forKey: "runOnlyForDeploymentPostprocessing", container: "\(type(of: self))", errorReporter: errorReporter)) == "1"
+    self.buildActionMask = value.string(forKey: "buildActionMask", container: "\(type(of: self))", errorReporter: errorReporter)
     
     self.debugDescription = self.name
   }
@@ -149,14 +149,14 @@ struct FileReference: TitledNode {
   let includeInIndex: Bool?
   var debugDescription: String
   
-  init(key: String, value: Dictionary<String, Any>, title: String, projectPath: String) {
-    identifyUnparsedKeys(value, knownKeys: ["path", "name", "explicitFileType", "lastKnownFileType", "sourceTree", "fileEncoding", "lineEnding", "xcLanguageSpecificationIdentifier", "includeInIndex"])
+  init(key: String, value: Dictionary<String, Any>, title: String, projectPath: String, errorReporter: ErrorReporter) {
+    identifyUnparsedKeys(value, knownKeys: ["path", "name", "explicitFileType", "lastKnownFileType", "sourceTree", "fileEncoding", "lineEnding", "xcLanguageSpecificationIdentifier", "includeInIndex"], errorReporter: errorReporter)
     self.title = title
-    self.path = value.string(forKey: "path", container: "\(type(of: self))")
+    self.path = value.string(forKey: "path", container: "\(type(of: self))", errorReporter: errorReporter)
     self.name = value["name"] as? String
     self.explicitFileType = value["explicitFileType"] as? String
     self.lastKnownFileType = value["lastKnownFileType"] as? String
-    self.sourceTree = value.string(forKey: "sourceTree", container: "\(type(of: self))")
+    self.sourceTree = value.string(forKey: "sourceTree", container: "\(type(of: self))", errorReporter: errorReporter)
     self.fileEncoding = value["fileEncoding"] as? String
     self.lineEnding = value["lineEnding"] as? String
     self.xcLanguageSpecificationIdentifier = value["xcLanguageSpecificationIdentifier"] as? String
@@ -173,11 +173,11 @@ struct FrameworksBuildPhase: CustomDebugStringConvertible {
   let buildActionMask: String
   var debugDescription: String
   
-  init(value: Dictionary<String, Any>) {
-    identifyUnparsedKeys(value, knownKeys: ["files", "runOnlyForDeploymentPostprocessing", "buildActionMask"])
+  init(value: Dictionary<String, Any>, errorReporter: ErrorReporter) {
+    identifyUnparsedKeys(value, knownKeys: ["files", "runOnlyForDeploymentPostprocessing", "buildActionMask"], errorReporter: errorReporter)
     self.files = value["files"] as! [String]
-    self.runOnlyForDeploymentPostprocessing = (value.string(forKey: "runOnlyForDeploymentPostprocessing", container: "\(type(of: self))")) == "1"
-    self.buildActionMask = value.string(forKey: "buildActionMask", container: "\(type(of: self))")
+    self.runOnlyForDeploymentPostprocessing = (value.string(forKey: "runOnlyForDeploymentPostprocessing", container: "\(type(of: self))", errorReporter: errorReporter)) == "1"
+    self.buildActionMask = value.string(forKey: "buildActionMask", container: "\(type(of: self))", errorReporter: errorReporter)
     
     self.debugDescription = "undefined"
   }
@@ -194,13 +194,13 @@ struct Group: TitledNode {
   let tabWidth: String?
   var debugDescription: String
   
-  init(key: String, value: Dictionary<String, Any>, title: String) {
-    identifyUnparsedKeys(value, knownKeys: ["name", "path", "sourceTree", "children", "indentWidth", "tabWidth"])
+  init(key: String, value: Dictionary<String, Any>, title: String, errorReporter: ErrorReporter) {
+    identifyUnparsedKeys(value, knownKeys: ["name", "path", "sourceTree", "children", "indentWidth", "tabWidth"], errorReporter: errorReporter)
     self.title = title
     self.id = key
     self.name = value["name"] as? String
     self.path = value["path"] as? String
-    self.sourceTree = value.string(forKey: "sourceTree", container: "\(type(of: self))")
+    self.sourceTree = value.string(forKey: "sourceTree", container: "\(type(of: self))", errorReporter: errorReporter)
     self.children = value["children"] as! [String]
     self.indentWidth = value["indentWidth"] as? String
     self.tabWidth = value["tabWidth"] as? String
@@ -221,17 +221,17 @@ struct LegacyTarget: CustomDebugStringConvertible {
   let buildToolPath: String
   var debugDescription: String
   
-  init(value: Dictionary<String, Any>) {
-    identifyUnparsedKeys(value, knownKeys: ["name", "productName", "dependencies", "buildArgumentsString", "buildConfigurationList", "buildWorkingDirectory", "passBuildSettingsInEnvironment", "buildPhases", "buildToolPath"])
-    self.name = value.string(forKey: "name", container: "\(type(of: self))")
-    self.productName = value.string(forKey: "productName", container: "\(type(of: self))")
+  init(value: Dictionary<String, Any>, errorReporter: ErrorReporter) {
+    identifyUnparsedKeys(value, knownKeys: ["name", "productName", "dependencies", "buildArgumentsString", "buildConfigurationList", "buildWorkingDirectory", "passBuildSettingsInEnvironment", "buildPhases", "buildToolPath"], errorReporter: errorReporter)
+    self.name = value.string(forKey: "name", container: "\(type(of: self))", errorReporter: errorReporter)
+    self.productName = value.string(forKey: "productName", container: "\(type(of: self))", errorReporter: errorReporter)
     self.dependencies = value["dependencies"] as! [String]
-    self.buildArgumentsString = value.string(forKey: "buildArgumentsString", container: "\(type(of: self))")
-    self.buildConfigurationList = value.string(forKey: "buildConfigurationList", container: "\(type(of: self))")
-    self.buildWorkingDirectory = value.string(forKey: "buildWorkingDirectory", container: "\(type(of: self))")
-    self.passBuildSettingsInEnvironment = (value.string(forKey: "passBuildSettingsInEnvironment", container: "\(type(of: self))")) == "1"
+    self.buildArgumentsString = value.string(forKey: "buildArgumentsString", container: "\(type(of: self))", errorReporter: errorReporter)
+    self.buildConfigurationList = value.string(forKey: "buildConfigurationList", container: "\(type(of: self))", errorReporter: errorReporter)
+    self.buildWorkingDirectory = value.string(forKey: "buildWorkingDirectory", container: "\(type(of: self))", errorReporter: errorReporter)
+    self.passBuildSettingsInEnvironment = (value.string(forKey: "passBuildSettingsInEnvironment", container: "\(type(of: self))", errorReporter: errorReporter)) == "1"
     self.buildPhases = value["buildPhases"] as! [String]
-    self.buildToolPath = value.string(forKey: "buildToolPath", container: "\(type(of: self))")
+    self.buildToolPath = value.string(forKey: "buildToolPath", container: "\(type(of: self))", errorReporter: errorReporter)
     
     self.debugDescription = "\(name)\n\(buildConfigurationList)"
   }
@@ -248,15 +248,15 @@ struct NativeTarget: CustomDebugStringConvertible {
   let buildPhases: [String]
   var debugDescription: String
   
-  init(value: Dictionary<String, Any>) {
-    identifyUnparsedKeys(value, knownKeys: ["name", "productName", "productType", "buildRules", "productReference", "dependencies", "buildConfigurationList", "buildPhases"])
-    self.name = value.string(forKey: "name", container: "\(type(of: self))")
-    self.productName = value.string(forKey: "productName", container: "\(type(of: self))")
-    self.productType = value.string(forKey: "productType", container: "\(type(of: self))")
+  init(value: Dictionary<String, Any>, errorReporter: ErrorReporter) {
+    identifyUnparsedKeys(value, knownKeys: ["name", "productName", "productType", "buildRules", "productReference", "dependencies", "buildConfigurationList", "buildPhases"], errorReporter: errorReporter)
+    self.name = value.string(forKey: "name", container: "\(type(of: self))", errorReporter: errorReporter)
+    self.productName = value.string(forKey: "productName", container: "\(type(of: self))", errorReporter: errorReporter)
+    self.productType = value.string(forKey: "productType", container: "\(type(of: self))", errorReporter: errorReporter)
     self.buildRules = value["buildRules"] as! [String]
     self.productReference = value["productReference"] as? String ?? "Not Found"
     self.dependencies = value["dependencies"] as! [String]
-    self.buildConfigurationList = value.string(forKey: "buildConfigurationList", container: "\(type(of: self))")
+    self.buildConfigurationList = value.string(forKey: "buildConfigurationList", container: "\(type(of: self))", errorReporter: errorReporter)
     self.buildPhases = value["buildPhases"] as! [String]
     
     self.debugDescription = "\(name)\n\(buildConfigurationList)"
@@ -277,18 +277,18 @@ struct ProjectNode: CustomDebugStringConvertible {
   
   var debugDescription: String
   
-  init(value: Dictionary<String, Any>) {
-    identifyUnparsedKeys(value, knownKeys: ["mainGroup", "attributes", "developmentRegion", "projectDirPath", "productRefGroup", "targets", "buildConfigurationList", "knownRegions", "compatibilityVersion", "hasScannedForEncodings", "projectRoot"])
-    self.mainGroup = value.string(forKey: "mainGroup", container: "\(type(of: self))")
-    self.developmentRegion = value.string(forKey: "developmentRegion", container: "\(type(of: self))")
-    self.projectDirPath = value.string(forKey: "projectDirPath", container: "\(type(of: self))")
-    self.productRefGroup = value.string(forKey: "productRefGroup", container: "\(type(of: self))")
+  init(value: Dictionary<String, Any>, errorReporter: ErrorReporter) {
+    identifyUnparsedKeys(value, knownKeys: ["mainGroup", "attributes", "developmentRegion", "projectDirPath", "productRefGroup", "targets", "buildConfigurationList", "knownRegions", "compatibilityVersion", "hasScannedForEncodings", "projectRoot"], errorReporter: errorReporter)
+    self.mainGroup = value.string(forKey: "mainGroup", container: "\(type(of: self))", errorReporter: errorReporter)
+    self.developmentRegion = value.string(forKey: "developmentRegion", container: "\(type(of: self))", errorReporter: errorReporter)
+    self.projectDirPath = value.string(forKey: "projectDirPath", container: "\(type(of: self))", errorReporter: errorReporter)
+    self.productRefGroup = value.string(forKey: "productRefGroup", container: "\(type(of: self))", errorReporter: errorReporter)
     self.targets = value["targets"] as! [String]
-    self.buildConfigurationList = value.string(forKey: "buildConfigurationList", container: "\(type(of: self))")
+    self.buildConfigurationList = value.string(forKey: "buildConfigurationList", container: "\(type(of: self))", errorReporter: errorReporter)
     self.knownRegions = value["knownRegions"] as! [String]
-    self.compatibilityVersion = value.string(forKey: "compatibilityVersion", container: "\(type(of: self))")
-    self.hasScannedForEncodings = (value.string(forKey: "hasScannedForEncodings", container: "\(type(of: self))")) == "1"
-    self.projectRoot = value.string(forKey: "projectRoot", container: "\(type(of: self))")
+    self.compatibilityVersion = value.string(forKey: "compatibilityVersion", container: "\(type(of: self))", errorReporter: errorReporter)
+    self.hasScannedForEncodings = (value.string(forKey: "hasScannedForEncodings", container: "\(type(of: self))", errorReporter: errorReporter)) == "1"
+    self.projectRoot = value.string(forKey: "projectRoot", container: "\(type(of: self))", errorReporter: errorReporter)
     
     self.debugDescription = "undefined"
   }
@@ -300,11 +300,11 @@ struct ResourcesBuildPhase: CustomDebugStringConvertible {
   let buildActionMask: String
   var debugDescription: String
   
-  init(value: Dictionary<String, Any>) {
-    identifyUnparsedKeys(value, knownKeys: ["files", "runOnlyForDeploymentPostprocessing", "buildActionMask"])
+  init(value: Dictionary<String, Any>, errorReporter: ErrorReporter) {
+    identifyUnparsedKeys(value, knownKeys: ["files", "runOnlyForDeploymentPostprocessing", "buildActionMask"], errorReporter: errorReporter)
     self.files = value["files"] as! [String]
-    self.runOnlyForDeploymentPostprocessing = (value.string(forKey: "runOnlyForDeploymentPostprocessing", container: "\(type(of: self))")) == "1"
-    self.buildActionMask = value.string(forKey: "buildActionMask", container: "\(type(of: self))")
+    self.runOnlyForDeploymentPostprocessing = (value.string(forKey: "runOnlyForDeploymentPostprocessing", container: "\(type(of: self))", errorReporter: errorReporter)) == "1"
+    self.buildActionMask = value.string(forKey: "buildActionMask", container: "\(type(of: self))", errorReporter: errorReporter)
     
     self.debugDescription = files.debugDescription
   }
@@ -322,17 +322,17 @@ struct ShellScriptBuildPhase: CustomDebugStringConvertible {
   let buildActionMask: String
   var debugDescription: String
   
-  init(value: Dictionary<String, Any>) {
-    identifyUnparsedKeys(value, knownKeys: ["showEnvVarsInLog", "files", "name", "runOnlyForDeploymentPostprocessing", "shellPath", "inputPaths", "outputPaths", "shellScript", "buildActionMask"])
+  init(value: Dictionary<String, Any>, errorReporter: ErrorReporter) {
+    identifyUnparsedKeys(value, knownKeys: ["showEnvVarsInLog", "files", "name", "runOnlyForDeploymentPostprocessing", "shellPath", "inputPaths", "outputPaths", "shellScript", "buildActionMask"], errorReporter: errorReporter)
     self.showEnvVarsInLog = (value["showEnvVarsInLog"] as? String) == "1"
     self.files = value["files"] as! [String]
     self.name = value["name"] as? String ?? "Untitled"
-    self.runOnlyForDeploymentPostprocessing =  (value.string(forKey: "runOnlyForDeploymentPostprocessing", container: "\(type(of: self))")) == "1"
-    self.shellPath = value.string(forKey: "shellPath", container: "\(type(of: self))")
+    self.runOnlyForDeploymentPostprocessing =  (value.string(forKey: "runOnlyForDeploymentPostprocessing", container: "\(type(of: self))", errorReporter: errorReporter)) == "1"
+    self.shellPath = value.string(forKey: "shellPath", container: "\(type(of: self))", errorReporter: errorReporter)
     self.inputPaths = value["inputPaths"] as! [String]
     self.outputPaths = value["outputPaths"] as! [String]
-    self.shellScript = value.string(forKey: "shellScript", container: "\(type(of: self))")
-    self.buildActionMask = value.string(forKey: "buildActionMask", container: "\(type(of: self))")
+    self.shellScript = value.string(forKey: "shellScript", container: "\(type(of: self))", errorReporter: errorReporter)
+    self.buildActionMask = value.string(forKey: "buildActionMask", container: "\(type(of: self))", errorReporter: errorReporter)
     
     self.debugDescription = self.name
   }
@@ -344,11 +344,11 @@ struct SourcesBuildPhase: CustomDebugStringConvertible {
   let buildActionMask: String
   var debugDescription: String
   
-  init(value: Dictionary<String, Any>) {
-    identifyUnparsedKeys(value, knownKeys: ["files", "runOnlyForDeploymentPostprocessing", "buildActionMask"])
+  init(value: Dictionary<String, Any>, errorReporter: ErrorReporter) {
+    identifyUnparsedKeys(value, knownKeys: ["files", "runOnlyForDeploymentPostprocessing", "buildActionMask"], errorReporter: errorReporter)
     self.files = value["files"] as! [String]
-    self.runOnlyForDeploymentPostprocessing = (value.string(forKey: "runOnlyForDeploymentPostprocessing", container: "\(type(of: self))")) == "1"
-    self.buildActionMask = value.string(forKey: "buildActionMask", container: "\(type(of: self))")
+    self.runOnlyForDeploymentPostprocessing = (value.string(forKey: "runOnlyForDeploymentPostprocessing", container: "\(type(of: self))", errorReporter: errorReporter)) == "1"
+    self.buildActionMask = value.string(forKey: "buildActionMask", container: "\(type(of: self))", errorReporter: errorReporter)
     
     self.debugDescription = "undefined"
   }
@@ -359,10 +359,10 @@ struct TargetDependency: CustomDebugStringConvertible {
   let targetProxy: String
   var debugDescription: String
   
-  init(value: Dictionary<String, Any>) {
-    identifyUnparsedKeys(value, knownKeys: ["targetProxy"])
+  init(value: Dictionary<String, Any>, errorReporter: ErrorReporter) {
+    identifyUnparsedKeys(value, knownKeys: ["targetProxy"], errorReporter: errorReporter)
     self.target = value["target"] as? String
-    self.targetProxy = value.string(forKey: "targetProxy", container: "\(type(of: self))")
+    self.targetProxy = value.string(forKey: "targetProxy", container: "\(type(of: self))", errorReporter: errorReporter)
     
     self.debugDescription = "undefined"
   }
@@ -376,11 +376,11 @@ struct VariantGroup: CustomDebugStringConvertible {
   
   var debugDescription: String
   
-  init(value: Dictionary<String, Any>) {
-    identifyUnparsedKeys(value, knownKeys: ["name", "path", "sourceTree", "children"])
+  init(value: Dictionary<String, Any>, errorReporter: ErrorReporter) {
+    identifyUnparsedKeys(value, knownKeys: ["name", "path", "sourceTree", "children"], errorReporter: errorReporter)
     self.name = value["name"] as? String
     self.path = value["path"] as? String
-    self.sourceTree = value.string(forKey: "sourceTree", container: "\(type(of: self))")
+    self.sourceTree = value.string(forKey: "sourceTree", container: "\(type(of: self))", errorReporter: errorReporter)
     self.children = value["children"] as! [String]
     
     self.debugDescription = "undefined"
@@ -544,12 +544,12 @@ func title(_ key: String, titles: Dictionary<String, String>) -> String {
 /// - parameters:
 ///   - values: The node being parsed
 ///   - knownKeys: A list of every key we’ve ever seen in this kind of node
-func identifyUnparsedKeys(_ values: Dictionary<String, Any>, knownKeys: [String]) {
+func identifyUnparsedKeys(_ values: Dictionary<String, Any>, knownKeys: [String], errorReporter: ErrorReporter) {
 
   for (key, _) in values {
     guard key != "isa" else { continue }
     if !knownKeys.contains(key) {
-      ErrorReporter.debugWarn("\(key)")
+      errorReporter.debugWarn("\(key)")
     }
   }
 }
@@ -570,6 +570,7 @@ class ProjectParser {
   private let objects: [String: Any]
   private let rootObject: String
   private let projectPath: String
+  private let errorReporter: ErrorReporter
   
   var buildConfigurationLists = Dictionary<String, BuildConfigurationList>()
   var buildConfigurations = [BuildConfiguration]()
@@ -595,7 +596,7 @@ class ProjectParser {
   ///   - projectPath: Path to the `xcodeproj` container
   /// - returns: A ProjectParser, populated with details, but
   /// no relationships
-init(project: Dictionary<String, Any>, projectText: String, projectPath: String) {
+  init(project: Dictionary<String, Any>, projectText: String, projectPath: String, errorReporter: ErrorReporter) {
     self.objects = project["objects"] as! [String: Any]
     self.rootObject = project["rootObject"] as! String
     titles = extractFileTitles(projectText)
@@ -610,6 +611,7 @@ init(project: Dictionary<String, Any>, projectText: String, projectPath: String)
     }
 
     self.projectPath = projectPath
+    self.errorReporter = errorReporter
   }
   
   /// Brute force walk through the top-level key:value pairs, and
@@ -623,59 +625,59 @@ init(project: Dictionary<String, Any>, projectText: String, projectPath: String)
       if let node = value as? Dictionary<String, Any> {
         switch node["isa"] as! String {
         case "PBXBuildFile":
-          let file = BuildFile(key: key, value: node)
+          let file = BuildFile(key: key, value: node, errorReporter: errorReporter)
           buildFiles[key] = file
         case "PBXFileReference":
-          let file = FileReference(key: key, value: node, title: title(key, titles: titles), projectPath: projectPath)
+          let file = FileReference(key: key, value: node, title: title(key, titles: titles), projectPath: projectPath, errorReporter: errorReporter)
           fileReferences[key] = file
         case "PBXLegacyTarget":
-          let target = LegacyTarget(value: node)
+          let target = LegacyTarget(value: node, errorReporter: errorReporter)
           legacyTargets.append(target)
         case "PBXNativeTarget":
-          let target = NativeTarget(value: node)
+          let target = NativeTarget(value: node, errorReporter: errorReporter)
           nativeTargets.append(target)
         case "PBXResourcesBuildPhase":
-          let phase = ResourcesBuildPhase(value: node)
+          let phase = ResourcesBuildPhase(value: node, errorReporter: errorReporter)
           resourceBuildPhases.append(phase)
         case "XCConfigurationList":
-          let configurationList = BuildConfigurationList(key: key, value: node, title: title(key, titles: titles))
+          let configurationList = BuildConfigurationList(key: key, value: node, title: title(key, titles: titles), errorReporter: errorReporter)
           buildConfigurationLists[key] = configurationList
         case "XCBuildConfiguration":
-          let buildConfiguration = BuildConfiguration(key: key, value: node, title: title(key, titles: titles))
+          let buildConfiguration = BuildConfiguration(key: key, value: node, title: title(key, titles: titles), errorReporter: errorReporter)
           buildConfigurations.append(buildConfiguration)
         case "PBXGroup":
-          let group = Group(key: key, value: node, title: title(key, titles: titles))
+          let group = Group(key: key, value: node, title: title(key, titles: titles), errorReporter: errorReporter)
           groups[key] = group
         case "PBXContainerItemProxy":
-          let containerItemProxy = ContainerItemProxy(value: node)
+          let containerItemProxy = ContainerItemProxy(value: node, errorReporter: errorReporter)
           containerItemProxies.append(containerItemProxy)
         case "PBXProject":
-          let project = ProjectNode(value: node)
+          let project = ProjectNode(value: node, errorReporter: errorReporter)
           projectNodes.append(project)
         case "PBXFrameworksBuildPhase":
-          let buildPhase = FrameworksBuildPhase(value: node)
+          let buildPhase = FrameworksBuildPhase(value: node, errorReporter: errorReporter)
           frameworksBuildPhases.append(buildPhase)
         case "PBXShellScriptBuildPhase":
-          let buildPhase = ShellScriptBuildPhase(value: node)
+          let buildPhase = ShellScriptBuildPhase(value: node, errorReporter: errorReporter)
           shellScriptBuildPhases.append(buildPhase)
         case "PBXSourcesBuildPhase":
-          let buildPhase = SourcesBuildPhase(value: node)
+          let buildPhase = SourcesBuildPhase(value: node, errorReporter: errorReporter)
           sourcesBuildPhases.append(buildPhase)
         case "PBXTargetDependency":
-          let targetDependency = TargetDependency(value: node)
+          let targetDependency = TargetDependency(value: node, errorReporter: errorReporter)
           targetDependencies.append(targetDependency)
         case "PBXVariantGroup":
-          let variantGroup = VariantGroup(value: node)
+          let variantGroup = VariantGroup(value: node, errorReporter: errorReporter)
           variantGroups.append(variantGroup)
         case "PBXCopyFilesBuildPhase":
-          let buildPhase = CopyFilesBuildPhase(value: node)
+          let buildPhase = CopyFilesBuildPhase(value: node, errorReporter: errorReporter)
           copyFilesPhases.append(buildPhase)
         case "PBXAggregateTarget":
           break
         case "PBXHeadersBuildPhase":
           break
         default:
-          ErrorReporter.debugWarn("New type found: \(node)")
+          self.errorReporter.debugWarn("New type found: \(node)")
         }
       }
       parsed = true

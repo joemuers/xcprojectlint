@@ -60,7 +60,7 @@ public func diskLayoutMatchesProject(_ project: Project, errorReporter: ErrorRep
       if results.count > 0 {
         result = errorReporter.reportKind.returnType
         for error in results {
-          ErrorReporter.report(error)
+          errorReporter.report(error)
         }
       } else {
         result = EX_OK

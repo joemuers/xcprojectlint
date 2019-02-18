@@ -23,7 +23,7 @@ public func checkForInternalProjectSettings(_ project: Project, errorReporter: E
     
     scriptResult = errorReporter.reportKind.returnType  // if we get to this line, we've found at least one misplaced build setting
     
-    guard let title = project.titles[buildConfiguration.id] else { errorReporter.report(ProjectSettingsError.problemLocatingMatchingConfiguration); return errorReporter.reportKind.returnType }
+    guard let title = project.titles[buildConfiguration.id] else { errorReporter.report(error: ProjectSettingsError.problemLocatingMatchingConfiguration); return errorReporter.reportKind.returnType }
     
     var matchingTarget: String?
     if let base = buildConfiguration.baseConfigurationReference {
@@ -52,12 +52,12 @@ public func checkForInternalProjectSettings(_ project: Project, errorReporter: E
     let errStr: String!
     // NOTE: The spaces around the error: portion of the string are required with Xcode 8.3. Without them, no output gets reported in the Issue Navigator.
     if let matchingTarget = matchingTarget {
-      errStr = "\(project.url.path):\(currentLine): \(errorReporter.reportKind.logEntry) \(matchingTarget) (\(buildConfiguration.name)) has settings defined in the project file.\n"
+      errStr = "\(matchingTarget) (\(buildConfiguration.name)) has settings defined in the project file.\n"
     } else {
-      errStr = "\(project.url.path):\(currentLine): \(errorReporter.reportKind.logEntry) \(title) has settings defined at the project level.\n"
+      errStr = "\(title) has settings defined at the project level.\n"
     }
     
-    ErrorReporter.report(errStr)
+    errorReporter.report(errStr)
   }
   
   return(scriptResult)

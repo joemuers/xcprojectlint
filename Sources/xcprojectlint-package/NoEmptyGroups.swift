@@ -18,8 +18,7 @@ private func validateThisGroup(_ id: String, title: String, project: Project, er
   let pathToParent = project.pathToReference(id)
   if let parent = project.groups[id] {
     if parent.children.isEmpty {
-      let errStr = "\(errorReporter.reportKind.logEntry) Xcode folder “\(pathToParent)/\(title)” has no children."
-      print(errStr)
+      errorReporter.report("Xcode folder “\(pathToParent)/\(title)” has no children.")
       return false
     }
   }

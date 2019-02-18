@@ -59,7 +59,7 @@ public func filesExistOnDisk(_ project: Project, errorReporter: ErrorReporter) -
       if results.count > 0 {
         result = errorReporter.reportKind.returnType
         for error in results {
-          ErrorReporter.report(error)
+          errorReporter.report(error)
         }
       } else {
         result = EX_OK

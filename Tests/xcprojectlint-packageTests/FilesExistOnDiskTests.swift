@@ -20,7 +20,7 @@ class FilesExistOnDiskTests: XCTestCase {
   func testMissingFileReturnsError() {
     do {
       let testData = Bundle.test.testData
-      let errorReporter = ErrorReporter(pbxprojPath: testData, reportKind: .error)
+      let errorReporter = ErrorReporter(pbxprojPath: testData, reportKind: .error, isQuiet: false)
       let project = try Project(testData, errorReporter: errorReporter)
       
       XCTAssertEqual(filesExistOnDisk(project, errorReporter: errorReporter), EX_SOFTWARE)

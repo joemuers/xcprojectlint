@@ -24,4 +24,6 @@ List of folders to ignore during `disk-layout-matches-project`.
                      Useful for Frameworks, Products, and/or source trees
                      that aren’t chidren to the project file
 """
+
+  public static let quiet = "Pass to silence debug warnings about unexpected project objects and so on."
 }

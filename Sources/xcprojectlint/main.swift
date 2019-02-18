@@ -35,7 +35,8 @@ func main() -> Int32 {
     let validationsArg: OptionArgument<[Validation]> = parser.add(option: "--validations", kind: [Validation].self, usage: Validation.usage)
     let projectArg: OptionArgument<PathArgument> = parser.add(option: "--project", kind: PathArgument.self, usage: Usage.project)
     let skipFoldersArg: OptionArgument<[String]> = parser.add(option: "--skip-folders", kind: [String].self, usage: Usage.skipFolders)
-    
+    let isQuietArg: OptionArgument<Bool> = parser.add(option: "--quiet", kind: Bool.self, usage: Usage.quiet)
+
     // The first argument is always the executable, so drop it
     var processArgs = ProcessInfo.processInfo.arguments.dropFirst()
     // Special case for "no arguments"
@@ -77,8 +78,8 @@ func main() -> Int32 {
     if validations.last == .all {
       validations = Validation.allValidations()
     }
-    
-    let errorReporter = ErrorReporter(pbxprojPath: proj.path.asString, reportKind: reportKind)
+
+    let errorReporter = ErrorReporter(pbxprojPath: proj.path.asString, reportKind: reportKind, isQuiet: args.get(isQuietArg) ?? false)
     let project = try Project(proj.path.asString, errorReporter: errorReporter)
     var scriptResult: Int32 = EX_OK
     for test in validations {

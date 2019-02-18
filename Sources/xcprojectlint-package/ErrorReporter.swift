@@ -17,33 +17,30 @@ import Foundation
 public struct ErrorReporter {
   public let pbxprojPath: String
   public let reportKind: ReportKind
+  public let isQuiet: Bool
   
-  public init(pbxprojPath: String, reportKind: ReportKind) {
+  public init(pbxprojPath: String, reportKind: ReportKind, isQuiet: Bool) {
     self.pbxprojPath = pbxprojPath
     self.reportKind = reportKind
+    self.isQuiet = isQuiet
   }
   
-  func report(_ error: Error) {
+  func report(error: Error) {
+    self.report(error.localizedDescription)
+  }
+
+  func report(_ errorString: String) {
     // NOTE: The spaces around the error: portion of the screen are required with Xcode 8.3. Without them, no output gets reported in the Issue Navigator.
-    let errStr = "\(pbxprojPath):0: \(reportKind.logEntry) \(error.localizedDescription)\n"
-    ErrorReporter.report(errStr)
-  }
-  
-  static func report(_ errorString: String) {
+    let errStr = "\(pbxprojPath):0: \(reportKind.logEntry) \(errorString)\n"
     let handle = FileHandle.standardError
-    if let data = errorString.data(using: .utf8) {
+    if let data = errStr.data(using: .utf8) {
       handle.write(data)
     }
   }
 
-    static func debugWarn(_ errorString: String) {
-        #if DEBUG
-        let handle = FileHandle.standardError
-        let errorAndNewLine = errorString + "\n"
-        if let data = errorAndNewLine.data(using: .utf8) {
-            handle.write(data)
-        }
-        #endif
-    }
+  func debugWarn(_ warningString: String) {
+    if self.isQuiet { return }
+    print(warningString)
+  }
 }
 
