@@ -23,16 +23,19 @@ public func checkForInternalProjectSettings(_ project: Project, errorReporter: E
     
     scriptResult = errorReporter.reportKind.returnType  // if we get to this line, we've found at least one misplaced build setting
     
-    guard let title = project.titles[buildConfiguration.id] else { errorReporter.report(error: ProjectSettingsError.problemLocatingMatchingConfiguration); return errorReporter.reportKind.returnType }
-    
-    var matchingTarget: String?
+    guard project.titles[buildConfiguration.id] != nil else {
+        errorReporter.report(error: ProjectSettingsError.problemLocatingMatchingConfiguration);
+        return errorReporter.reportKind.returnType
+    }
+
+    var configFileName: String?
     if let base = buildConfiguration.baseConfigurationReference {
-      matchingTarget = project.titles[base]
+      configFileName = project.titles[base]
     } else {
       let target = project.legacyTargets.filter { $0.buildConfigurationList == buildConfiguration.id }
-      matchingTarget = target.last?.name
+      configFileName = target.last?.name
     }
-    
+
     // see if we can find the buildSettings node closest to this build configuration
     var currentLine = 0
     var foundKey = false
@@ -48,19 +51,39 @@ public func checkForInternalProjectSettings(_ project: Project, errorReporter: E
         }
       }
     }
-    
+
     let errStr: String!
-    // NOTE: The spaces around the error: portion of the string are required with Xcode 8.3. Without them, no output gets reported in the Issue Navigator.
-    if let matchingTarget = matchingTarget {
-      errStr = "\(matchingTarget) (\(buildConfiguration.name)) has settings defined in the project file.\n"
+    let projectName = project.projectName.replacingOccurrences(of: ".xcodeproj", with: "")
+    if buildConfig(buildConfiguration, isAtProjectLevelFor: project) {
+        let configName = configFileName ?? "Project.\(projectName).\(buildConfiguration.name).xcconfig"
+      errStr = "Project \(projectName) has build settings defined in the project file (at the project level). Please use the config file \(configName) (or Project.\(projectName).shared.xcconfig if appropriate) for these settings. \n"
+    } else if let targetName = targetName(for: buildConfiguration, inProject: project) {
+        let configName = configFileName ?? "Target.\(targetName).\(buildConfiguration.name).xcconfig"
+        errStr = "Project \(projectName) has settings defined in the project file for target \"\(targetName)\" (\(buildConfiguration.name) configuration). Please use the config file \(configName) (or Target.\(targetName).shared.xcconfig if appropriate) for these settings. \n"
     } else {
-      errStr = "\(title) has settings defined at the project level.\n"
+        errStr = "Project \(projectName) has build settings defined in the project file. Please extract them to the corresponding .xcconfig file. \n"
     }
     
-    errorReporter.report(errStr)
+    errorReporter.report(errStr, lineNumber: currentLine)
   }
   
   return(scriptResult)
+}
+
+func buildConfig(_ buildConfig: BuildConfiguration, isAtProjectLevelFor project: Project) -> Bool {
+    guard let projectNode = project.projectNodes.first else { return false }
+    guard let buildConfigsList = project.buildConfigurationLists[projectNode.buildConfigurationList] else { return false }
+    return buildConfigsList.buildConfigurations.contains(buildConfig.id)
+}
+
+func targetName(for buildConfig: BuildConfiguration, inProject project: Project) -> String? {
+    for nativeTarget in project.nativeTargets {
+        guard let projectConfigList = project.buildConfigurationLists[nativeTarget.buildConfigurationList] else { continue }
+        if projectConfigList.buildConfigurations.contains(buildConfig.id) {
+            return nativeTarget.name
+        }
+    }
+    return nil
 }
 
 enum ProjectSettingsError: String, Error {

@@ -25,13 +25,13 @@ public struct ErrorReporter {
     self.isQuiet = isQuiet
   }
   
-  func report(error: Error) {
-    self.report(error.localizedDescription)
+  func report(error: Error, lineNumber: Int = 0) {
+    self.report(error.localizedDescription, lineNumber: lineNumber)
   }
 
-  func report(_ errorString: String) {
+    func report(_ errorString: String, lineNumber: Int = 0) {
     // NOTE: The spaces around the error: portion of the screen are required with Xcode 8.3. Without them, no output gets reported in the Issue Navigator.
-    let errStr = "\(pbxprojPath):0: \(reportKind.logEntry) \(errorString)\n"
+    let errStr = "\(pbxprojPath):\(lineNumber): \(reportKind.logEntry) \(errorString)\n"
     let handle = FileHandle.standardError
     if let data = errStr.data(using: .utf8) {
       handle.write(data)
