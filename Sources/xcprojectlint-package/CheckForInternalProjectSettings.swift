@@ -56,12 +56,12 @@ public func checkForInternalProjectSettings(_ project: Project, errorReporter: E
     let projectName = project.projectName.replacingOccurrences(of: ".xcodeproj", with: "")
     if buildConfig(buildConfiguration, isAtProjectLevelFor: project) {
         let configName = configFileName ?? "Project.\(projectName).\(buildConfiguration.name).xcconfig"
-      errStr = "Project \(projectName) has build settings defined in the project file (at the project level). Please use the config file \(configName) (or Project.\(projectName).shared.xcconfig if appropriate) for these settings. \n"
+      errStr = "Project \"\(projectName)\" has build settings defined in the project file (at the project level). Please extract these settings to the config file \(configName) (or Project.\(projectName).shared.xcconfig if appropriate). \n"
     } else if let targetName = targetName(for: buildConfiguration, inProject: project) {
         let configName = configFileName ?? "Target.\(targetName).\(buildConfiguration.name).xcconfig"
-        errStr = "Project \(projectName) has settings defined in the project file for target \"\(targetName)\" (\(buildConfiguration.name) configuration). Please use the config file \(configName) (or Target.\(targetName).shared.xcconfig if appropriate) for these settings. \n"
+        errStr = "Project \"\(projectName)\" has settings defined in the project file for target \"\(targetName)\" (\(buildConfiguration.name) configuration). Please extract these settings to the config file \(configName) (or Target.\(targetName).shared.xcconfig if appropriate). \n"
     } else {
-        errStr = "Project \(projectName) has build settings defined in the project file. Please extract them to the corresponding .xcconfig file. \n"
+        errStr = "Project \"\(projectName)\" has build settings defined in the project file. Please extract them to the corresponding .xcconfig file. \n"
     }
     
     errorReporter.report(errStr, lineNumber: currentLine)
