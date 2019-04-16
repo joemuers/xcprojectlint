@@ -125,7 +125,7 @@ struct CopyFilesBuildPhase: CustomDebugStringConvertible {
   init(value: Dictionary<String, Any>, errorReporter: ErrorReporter) {
     identifyUnparsedKeys(value, knownKeys: ["dstSubfolderSpec", "files", "name", "dstPath", "runOnlyForDeploymentPostprocessing", "buildActionMask"], errorReporter: errorReporter)
     self.dstSubfolderSpec = value.string(forKey: "dstSubfolderSpec", container: "\(type(of: self))", errorReporter: errorReporter)
-    self.files = value["files"] as! [String]
+    self.files = value["files"] as? [String] ?? []
     self.name = value["name"] as? String ?? "Untitled"
     self.dstPath = value.string(forKey: "dstPath", container: "\(type(of: self))", errorReporter: errorReporter)
     self.runOnlyForDeploymentPostprocessing = (value.string(forKey: "runOnlyForDeploymentPostprocessing", container: "\(type(of: self))", errorReporter: errorReporter)) == "1"
@@ -175,7 +175,7 @@ struct FrameworksBuildPhase: CustomDebugStringConvertible {
   
   init(value: Dictionary<String, Any>, errorReporter: ErrorReporter) {
     identifyUnparsedKeys(value, knownKeys: ["files", "runOnlyForDeploymentPostprocessing", "buildActionMask"], errorReporter: errorReporter)
-    self.files = value["files"] as! [String]
+    self.files = value["files"] as? [String] ?? []
     self.runOnlyForDeploymentPostprocessing = (value.string(forKey: "runOnlyForDeploymentPostprocessing", container: "\(type(of: self))", errorReporter: errorReporter)) == "1"
     self.buildActionMask = value.string(forKey: "buildActionMask", container: "\(type(of: self))", errorReporter: errorReporter)
     
@@ -302,7 +302,7 @@ struct ResourcesBuildPhase: CustomDebugStringConvertible {
   
   init(value: Dictionary<String, Any>, errorReporter: ErrorReporter) {
     identifyUnparsedKeys(value, knownKeys: ["files", "runOnlyForDeploymentPostprocessing", "buildActionMask"], errorReporter: errorReporter)
-    self.files = value["files"] as! [String]
+    self.files = value["files"] as? [String] ?? []
     self.runOnlyForDeploymentPostprocessing = (value.string(forKey: "runOnlyForDeploymentPostprocessing", container: "\(type(of: self))", errorReporter: errorReporter)) == "1"
     self.buildActionMask = value.string(forKey: "buildActionMask", container: "\(type(of: self))", errorReporter: errorReporter)
     
@@ -325,7 +325,7 @@ struct ShellScriptBuildPhase: CustomDebugStringConvertible {
   init(value: Dictionary<String, Any>, errorReporter: ErrorReporter) {
     identifyUnparsedKeys(value, knownKeys: ["showEnvVarsInLog", "files", "name", "runOnlyForDeploymentPostprocessing", "shellPath", "inputPaths", "outputPaths", "shellScript", "buildActionMask"], errorReporter: errorReporter)
     self.showEnvVarsInLog = (value["showEnvVarsInLog"] as? String) == "1"
-    self.files = value["files"] as! [String]
+    self.files = value["files"] as? [String] ?? []
     self.name = value["name"] as? String ?? "Untitled"
     self.runOnlyForDeploymentPostprocessing =  (value.string(forKey: "runOnlyForDeploymentPostprocessing", container: "\(type(of: self))", errorReporter: errorReporter)) == "1"
     self.shellPath = value.string(forKey: "shellPath", container: "\(type(of: self))", errorReporter: errorReporter)
@@ -346,7 +346,7 @@ struct SourcesBuildPhase: CustomDebugStringConvertible {
   
   init(value: Dictionary<String, Any>, errorReporter: ErrorReporter) {
     identifyUnparsedKeys(value, knownKeys: ["files", "runOnlyForDeploymentPostprocessing", "buildActionMask"], errorReporter: errorReporter)
-    self.files = value["files"] as! [String]
+    self.files = value["files"] as? [String] ?? []
     self.runOnlyForDeploymentPostprocessing = (value.string(forKey: "runOnlyForDeploymentPostprocessing", container: "\(type(of: self))", errorReporter: errorReporter)) == "1"
     self.buildActionMask = value.string(forKey: "buildActionMask", container: "\(type(of: self))", errorReporter: errorReporter)
     
